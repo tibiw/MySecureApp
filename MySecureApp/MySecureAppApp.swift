@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct MySecureAppApp: App {
+    // MARK: - PROPERTIES
+    @StateObject var authentication = Authentication()
+    
+    // MARK: - BODY
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authentication.isValidated {
+                ContentView()
+                    .environmentObject(authentication)
+            } else {
+                LoginView()
+                    .environmentObject(authentication)
+            }
         }
     }
 }
