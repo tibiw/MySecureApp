@@ -36,6 +36,6 @@ struct ContentView: View {
 // MARK: - PREVIEW
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(authentication: Authentication())
     }
 }

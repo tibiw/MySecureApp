@@ -16,7 +16,7 @@ struct MySecureAppApp: App {
     var body: some Scene {
         WindowGroup {
             if authentication.isValidated {
-                ContentView()
+                ContentView(authentication: Authentication())
                     .environmentObject(authentication)
             } else {
                 LoginView()

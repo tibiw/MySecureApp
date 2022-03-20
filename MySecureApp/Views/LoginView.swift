@@ -36,6 +36,26 @@ struct LoginView: View {
             }
             .disabled(loginVM.loginDisabled)
             
+            if authentication.biometricType() != .none {
+                Button {
+                    authentication.requestBiometricUnlock { (result: Result<Credentials, Authentication.AuthenticationError>) in
+                        switch result {
+                        case .success(let credentials):
+                            loginVM.credentials = credentials
+                            loginVM.login { success in
+                                authentication.updateValidation(success: success)
+                            }
+                        case .failure(let error):
+                            loginVM.error = error
+                        }
+                    }
+                } label: {
+                    Image(systemName: authentication.biometricType() == .face ? "faceid" : "touchid")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                }
+            }
+            
             Spacer()
         }
         .autocapitalization(.none)
@@ -43,11 +63,22 @@ struct LoginView: View {
         .padding()
         .disabled(loginVM.showProgressView)
         .alert(item: $loginVM.error) { error in
-            Alert(
+            if error == .credentialsNotSaved {
+                return Alert(
+                    title: Text("Credentials not saved"),
+                    message: Text(error.localizedDescription),
+                    primaryButton: .default(Text("OK"), action: {
+                        loginVM.storeCredentialsNext = true
+                    }),
+                    secondaryButton: .cancel()
+                )
+            } else {
+            return Alert(
                 title: Text("Invalid Login"),
                 message: Text(error.localizedDescription)
 //                dismissButton: <#T##Alert.Button?#>
             )
+            }
         }
     }
 }
@@ -56,5 +87,6 @@ struct LoginView: View {
 struct LoginView_Previews: PreviewProvider {
     static var previews: some View {
         LoginView()
+            .environmentObject(Authentication())
     }
 }
